@@ -1,22 +1,31 @@
-// Initialize express
-const express = require('express');
-// Import and require mysql2
+// Import and require dependencies
 const mysql = require('mysql2');
-
 const inquirer = require('inquirer');
+const functions = require('./functions');
+const express = require('express');
 
-const connection = mysql.createConnection({
+// Connect to database
+const PORT = process.env.PORT || 3001;
+const app = express();
+
+// Express middleware
+app.use(express.urlencoded({ extended: false }));
+app.use(express.json());
+
+// Connect to database
+const connection = mysql.createConnection(
+  {
     host: 'localhost',
-    port: 3001,
+    // MySQL username,
     user: 'root',
+    // MySQL password
     password: 'Kv1ponder!',
     database: 'myTeam_db'
-});
+  },
+  console.log(`Connected to the books_db database.`),
+  console.log(`-----------------------------------`)
+);
 
-connection.connect((err) => {
-    if (err) throw err;
-    console.log(`connected as id ${connection.threadId}`);
-});
 
 
 //BELOW are the CRUD functions which are called in the inquirer prompts
@@ -26,7 +35,7 @@ function start() {
     .prompt({                   //this is the inquirer prompt that is displayed when the app is run which asks the user what they would like to do
         name: 'action',
         type: 'list',
-        message: 'what would you like to do?',
+        message: 'What would you like to do Today?',
         choices: [
             'View All Employees',
             'View All Employees By Department',
@@ -47,7 +56,7 @@ function start() {
     .then((answer) => {                         //Note to self: Switch cases are used to perform different actions based on different conditions, in this case the user's answer to the prompt
         switch (answer.action) {
             case 'View All Employees':
-                viewAllEmployees();
+                functions.viewAllEmployees();
                 break;
             case 'View All Employees By Department':
                 viewAllEmployeesByDepartment();
@@ -91,39 +100,9 @@ function start() {
         };
         });
     }
+start();
 
-    function viewAllEmployees() {
-        const query = `
-        SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department, role.salary, CONCAT(manager.first_name, ' ', manager.last_name) AS manager
-        FROM employee
-        LEFT JOIN role ON employee.role_id = role.id
-        LEFT JOIN department ON role.department_id = department.id
-        LEFT JOIN employee manager ON manager.id = employee.manager_id;`
-        connection.query(query, (err, res) => {
-            if (err) throw err;
-            console.table(res);
-        }
-        )
-        start();
-    };
-
-    function viewAllEmployeesByDepartment() {
-        const query = `
-        SELECT department.name AS department, employee.id, employee.first_name, employee.last_name, role.title
-        FROM employee
-        LEFT JOIN role ON employee.role_id = role.id
-        LEFT JOIN department ON role.department_id = department.id
-        ORDER BY department.name;`
-        connection.query(query, (err, res) => {
-            if (err) throw err;
-            console.table(res);
-        }
-        )
-        start();
-    }
-
-    function viewAllEmployeesByManager() {
-
-    }
-
-    
+module.exports = {
+   connection,
+    start
+};
