@@ -29,18 +29,21 @@ const connection = mysql.createConnection(
 
 
 //Want to 1- move functions to sep file, create a constructor function for each table, and export them to this file 
-
+//CONCAT is used to concatenate 
 function viewAllEmployees() {
     const query = `
-      SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department, role.salary, CONCAT(manager.first_name, ' ', manager.last_name) AS manager
+
+      SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department, role.salary, CONCAT(manager. first_name, ' ', manager.last_name, " ", manager.id) AS manager
       FROM employee
       LEFT JOIN role ON employee.role_id = role.id
       LEFT JOIN department ON role.department_id = department.id
       LEFT JOIN employee manager ON manager.id = employee.manager_id;`;
     connection.query(query, (err, res) => {
       if (err) throw err;
-      console.log(res); 
+      console.table(res);
+      start();
     });
+
     //function to call table- make constructor function for the next step for each table
   }
   
@@ -53,8 +56,9 @@ function viewAllEmployees() {
       ORDER BY department.name;`;
     connection.query(query, (err, res) => {
       if (err) throw err;
+      console
     });
-    start();  //remove this and add a table constructor function
+      //remove this and add a table constructor function
   }
   //this function below will not work until I add a manager_id column to the employee table      - i also need to add a manager table- then add 3-4 managers to the manager table
   //which i can do by adding a foreign key to the employee table that references the employee id
@@ -68,19 +72,55 @@ function viewAllEmployees() {
       ORDER BY manager;`;
     connection.query(query, (err, res) => {
       if (err) throw err;
+      console.log(res);
     });
-    start();  //remove this and add a table constructor function
+      //start() remove this and add a table constructor function
   }
   
 
   //For all of these functiuons, create a class constructor for function 
     function addEmployee() {
-        const query = `
+        inquirer.prompt([
+            {
+                name: 'first_name',
+                type: 'input',
+                message: 'What is the employee\'s first name?'
+            },
+            {
+                name: 'last_name',
+                type: 'input',
+                message: 'What is the employee\'s last name?'
+            },
+            {
+                name: 'role_id',
+                type: 'input',
+                message: 'What is the employee\'s role id?'
+            },
+            {
+                name: 'manager_id',
+                type: 'input',
+                message: 'What is the employee\'s manager id?'
+            },
+            {
+                name: 'salary',
+                type: 'input',
+                message: 'What is the employee\'s salary?'
+            }
+        ])
+//(?, ?, ?, ?, ?) ties this to the above answers in the inquirer prompt
+        .then((answers) => {
+        const {first_name, last_name, role_id, manager_id, salary} = answers;
+        const query = `INSERT INTO employee (first_name, last_name, role_id, manager_id, salary) VALUES (?, ?, ?, ?, ?)
         `;
-        connection.query(query, (err, res) => {
+        connection.query(query, [first_name, last_name, role_id, manager_id, salary], (err, res) => { 
             if (err) throw err;
+            console.log("Employee added successfully!")
+                start();
           });
-          start();
+        });
+
+
+
     }
     function removeEmployee() {                    
         const query = `
@@ -107,20 +147,49 @@ function viewAllEmployees() {
           start();
     }
     function viewAllRoles() {
-        const query = `
+        const query = `SELECT * FROM role
         `;
         connection.query(query, (err, res) => {
             if (err) throw err;
+            console.table(res);
+            start();
           });
-          start();
+          
     }
     function addRole() {
-        const query = `
+        inquirer.prompt([
+            {
+                name: 'title',
+                type: 'input',
+                message: 'What is the title of the new role?'
+            },
+            {
+                name: 'salary',
+                type: 'input',
+                message: 'What is the starting salary of the new role?'
+            },
+            {
+                name: 'department_id',
+                type: 'input',
+                message: 'What is the department id of the new role? (PLEASE ENTER A NUMBER)',
+                validate: function(value) {
+                    if (isNaN(value) === false) {
+                        return true;}
+                    return false;
+                }
+            }
+        ])
+        .then((answers) => {
+        const {title, salary, department_id} = answers;
+        const query = `INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?)
         `;
-        connection.query(query, (err, res) => {
+        connection.query(query, [title, salary, department_id], (err, res) => { 
             if (err) throw err;
+            console.log("Role added successfully!")
+                start();
           });
-          start();
+        });
+
     }
     function removeRole() {
         const query = `
@@ -131,12 +200,14 @@ function viewAllEmployees() {
           start();
     }
     function viewAllDepartments() {
-        const query = `
+        const query = `SELECT * FROM department
         `;
         connection.query(query, (err, res) => {
             if (err) throw err;
+            cTable.getTable(res);
+            console.log(res);
           });
-          start();
+          
     }
     function addDepartment() {
         const query = `
