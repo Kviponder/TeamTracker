@@ -62,3 +62,14 @@ CREATE TABLE employee (
 );
 
 
+
+
+--Former seed file content- unsure if it needed to stay
+
+INSERT INTO manager (id, first_name, last_name, role_id) VALUES
+    (1, 'John', 'Smith', 1),
+    (2, 'Emma', 'Johnson', 1),
+    (3, 'Michael', 'Williams', 1),
+    (4, 'Olivia', 'Brown', 1),
+    (5, 'William', 'Jones', 1),
+    (6, 'Sophia', 'Davis', 1);

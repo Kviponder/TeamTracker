@@ -1,6 +1,7 @@
 // Import and require dependencies
 const mysql = require('mysql2');
 const inquirer = require('inquirer');
+const cTable = require('console.table');
 // const functions = require('./functions');
 const express = require('express');
 
@@ -39,7 +40,7 @@ function viewAllEmployees() {
     connection.query(query, (err, res) => {
       if (err) throw err;
     });
-    start();
+    //function to call table- make constructor function for the next step for each table
   }
   
   function viewAllEmployeesByDepartment() {
@@ -52,9 +53,9 @@ function viewAllEmployees() {
     connection.query(query, (err, res) => {
       if (err) throw err;
     });
-    start();
+    start();  //remove this and add a table constructor function
   }
-  //this function below will not work until I add a manager_id column to the employee table
+  //this function below will not work until I add a manager_id column to the employee table      - i also need to add a manager table- then add 3-4 managers to the manager table
   //which i can do by adding a foreign key to the employee table that references the employee id
   function viewAllEmployeesByManager() {
     const query = `
@@ -67,9 +68,11 @@ function viewAllEmployees() {
     connection.query(query, (err, res) => {
       if (err) throw err;
     });
-    start();
+    start();  //remove this and add a table constructor function
   }
   
+
+  //For all of these functiuons, create a class constructor for function 
     function addEmployee() {
         const query = `
         `;
@@ -78,7 +81,7 @@ function viewAllEmployees() {
           });
           start();
     }
-    function removeEmployee() {
+    function removeEmployee() {                    
         const query = `
         `;
         connection.query(query, (err, res) => {
@@ -164,15 +167,15 @@ function start() {
             'View All Employees By Department',
             'View All Employees By Manager',
             'Add Employee',
-            'Remove Employee',
+            'Remove Employee',                  //not needed
             'Update Employee Role',
-            'Update Employee Manager',
+            'Update Employee Manager',          //not needed
             'View All Roles',
             'Add Role',
-            'Remove Role',
+            'Remove Role',                      //not needed
             'View All Departments',
             'Add Department',
-            'Remove Department',
+            'Remove Department',                //not needed
             'Quit'
         ]
     })
