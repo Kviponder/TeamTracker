@@ -13,20 +13,19 @@ CREATE TABLE department (
     id INT NOT NULL AUTO_INCREMENT,
     name VARCHAR(30) NOT NULL,      
     PRIMARY KEY (id)
-     FOREIGN KEY (manager_id)
-        REFERENCES manager (id)
+
 );
 
 -- Creates sample departments into the department table
-INSERT INTO department (name, manager_id) VALUES
-    ('Sales', 1),
-    ('Engineering', 2),
-    ('Finance', 3),
-    ('Legal', 4),
-    ('HR', 5),
-    ('Marketing', 6),
-    ('IT', 7),
-    ('Management', NULL);
+INSERT INTO department (name) VALUES
+    ('Sales'),
+    ('Engineering'),
+    ('Finance'),
+    ('Legal'),
+    ('HR'),
+    ('Marketing'),
+    ('IT'),
+    ('Management');
 
 CREATE TABLE role (
     id INT NOT NULL AUTO_INCREMENT,
@@ -63,7 +62,8 @@ INSERT INTO role (title, salary, department_id) VALUES
     PRIMARY KEY (id)
     );
 
-INSERT INTO manager (first_name, last_name, role_id)
+
+    INSERT INTO manager (first_name, last_name, role_id)
 VALUES
     ('James', 'Anderson', 1),
     ('Sophie', 'Walker', 1),
@@ -73,6 +73,8 @@ VALUES
     ('Olivia', 'Garcia', 1),
     ('Benjamin', 'Davis', 1),
     ('Emily', 'Clark', 1);
+
+
 
 CREATE TABLE employee (
     id INT NOT NULL AUTO_INCREMENT,

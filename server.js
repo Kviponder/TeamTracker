@@ -39,6 +39,7 @@ function viewAllEmployees() {
       LEFT JOIN employee manager ON manager.id = employee.manager_id;`;
     connection.query(query, (err, res) => {
       if (err) throw err;
+      console.log(res); 
     });
     //function to call table- make constructor function for the next step for each table
   }
