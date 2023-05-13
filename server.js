@@ -1,6 +1,7 @@
 // Import and require dependencies
 const mysql = require("mysql2");
 const inquirer = require("inquirer");
+require("dotenv").config();
 const cTable = require("console.table");
 // const functions = require('./functions');
 const express = require("express");
@@ -16,15 +17,14 @@ app.use(express.json());
 // Connect to database
 const connection = mysql.createConnection(
   {
-    host: "localhost",
-    // MySQL username,
-    user: "root",
-    // MySQL password
-    password: "Kv1ponder!",
-    database: "myTeam_db",
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_DATABASE,
   },
-  console.log(`Connected to the books_db database.`),
-  console.log(`-----------------------------------`)
+  console.log(` -------------------------------------- `),
+  console.log(`   Connected to your Team's database.   `),
+  console.log(` -------------------------------------- `)
 );
 
 //Want to 1- move functions to sep file, create a constructor function for each table, and export them to this file
@@ -98,44 +98,48 @@ function addEmployee() {
 
 function removeEmployee() {
   inquirer
-    .prompt([
-      {
-        name: "choice",
-        type: "list",
-        message: "Would you like to remove the employee by name or id?",
-        choices: ["Name", "ID"],
-      },
-      {
-        name: "first_name",
-        type: "input",
-        message: "What is the employee's full name?",
-        when: (answers) => answers.choice === "Name",
-      },
-      {
-        name: "id",
-        type: "input",
-        message: "What is the employee's id?",
-        when: (answers) => answers.choice === "ID",
-      },
-    ])
+    .prompt({
+      name: "id",
+      type: "input",
+      message: "What is the employee's id?",
+    })
 
     .then((answers) => {
+      const employeeid = answers.id;
       const query = `
-        DELETE FROM employee WHERE id = ? or full_name = ?
+        DELETE FROM employee WHERE id = ?
         `;
-      connection.query(query, (err, res) => {
+      connection.query(query, [employeeid], (err, res) => {
         if (err) throw err;
+        console.log("Employee deleted successfully!");
       });
       start();
     });
 }
 function updateEmployeeRole() {
-  const query = `
+  inquirer
+    .prompt([
+      {
+        name: "id",
+        type: "input",
+        message: "What is the employee's id?",
+      },
+      {
+        name: "role_id",
+        type: "input",
+        message: "What is the employee's new role id?",
+      },
+    ])
+    .then((answers) => {
+      const { id, role_id } = answers;
+      const query = `UPDATE employee SET role_id = ? WHERE ID = ?
         `;
-  connection.query(query, (err, res) => {
-    if (err) throw err;
-  });
-  start();
+      connection.query(query, [role_id, id], (err, res) => {
+        if (err) throw err;
+        console.log("Employee role updated successfully!");
+        start();
+      });
+    });
 }
 
 function viewAllRoles() {
@@ -215,10 +219,8 @@ function addDepartment() {
     });
 }
 
-//Might not use delete functions
-
 //BELOW are the CRUD functions which are called in the inquirer prompts
-
+//CRUD stands for Create, Read, Update, Delete -- My equivalent of CRUD here is: Add, View, Update, Remove
 function start() {
   inquirer
     .prompt({
@@ -228,14 +230,14 @@ function start() {
       message: "What would you like to do Today?",
       //THEN I am presented with the following options: view all departments, view all roles, view all employees, add a department, add a role, add an employee, and update an employee role
       choices: [
-        "View All Employees", //needed+done ★★★
-        "View All Roles", //Needed+done ★★★
-        "View All Departments", //Needed+done ★★★
-        "Add Employee", //needed+done ★★★
-        "Add Role", //Needed      ★★★
-        "Add Department", //needed      ★★★             //not needed
-        "Update Employee Role", //needed      ★
-        "Remove Employee", //not needed  ★★★
+        "View All Employees",
+        "View All Roles",
+        "View All Departments",
+        "Add Employee",
+        "Add Role",
+        "Add Department",
+        "Update Employee Role",
+        "Remove Employee",
         "Quit",
       ],
     })

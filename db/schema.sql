@@ -1,19 +1,18 @@
 
+
 DROP DATABASE IF EXISTS myTeam_db;
+CREATE DATABASE myTeam_db;
+USE myTeam_db;
 DROP TABLE IF EXISTS employee;
 DROP TABLE IF EXISTS manager;
 DROP TABLE IF EXISTS role;
 DROP TABLE IF EXISTS department;
-
-CREATE DATABASE myTeam_db;
-USE myTeam_db;
 
 -- Create the departments table
 CREATE TABLE department (
     id INT NOT NULL AUTO_INCREMENT,
     name VARCHAR(30) NOT NULL,      
     PRIMARY KEY (id)
-
 );
 
 -- Creates sample departments into the department table
@@ -30,11 +29,11 @@ INSERT INTO department (name) VALUES
 CREATE TABLE role (
     id INT NOT NULL AUTO_INCREMENT,
     title VARCHAR(30) NOT NULL,   
-    salary DECIMAL(10,2) NOT NULL,          
-    department_id INT NOT NULL,            
+    salary DECIMAL(10,2) NOT NULL,
+    department_id INT NOT NULL,   
     PRIMARY KEY (id),                       
-    FOREIGN KEY (department_id)             
-        REFERENCES department (id)          
+    FOREIGN KEY (department_id)              
+        REFERENCES department (id)    
 );
 
 
