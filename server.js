@@ -27,12 +27,10 @@ const connection = mysql.createConnection(
   console.log(`-----------------------------------`)
 );
 
-
 //Want to 1- move functions to sep file, create a constructor function for each table, and export them to this file 
 //CONCAT is used to concatenate 
 function viewAllEmployees() {
     const query = `
-
       SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department, role.salary, CONCAT(manager. first_name, ' ', manager.last_name, " ", manager.id) AS manager
       FROM employee
       LEFT JOIN role ON employee.role_id = role.id
@@ -46,37 +44,10 @@ function viewAllEmployees() {
 
     //function to call table- make constructor function for the next step for each table
   }
-  
-  function viewAllEmployeesByDepartment() {
-    const query = `
-      SELECT department.name AS department, employee.id, employee.first_name, employee.last_name, role.title, role.salary, CONCAT(manager.first_name, ' ', manager.last_name) AS manager
-      FROM employee
-      LEFT JOIN role ON employee.role_id = role.id
-      LEFT JOIN department ON role.department_id = department.id
-      ORDER BY department.name;`;
-    connection.query(query, (err, res) => {
-      if (err) throw err;
-      console
-    });
-      //remove this and add a table constructor function
-  }
+
   //this function below will not work until I add a manager_id column to the employee table      - i also need to add a manager table- then add 3-4 managers to the manager table
   //which i can do by adding a foreign key to the employee table that references the employee id
-  function viewAllEmployeesByManager() {
-    const query = `
-      SELECT CONCAT(manager.first_name, ' ', manager.last_name) AS manager, employee.id, employee.first_name, employee.last_name, role.title, role.salary
-      FROM employee
-      LEFT JOIN role ON employee.role_id = role.id
-      LEFT JOIN department ON role.department_id = department.id
-      LEFT JOIN employee manager ON manager.id = employee.manager_id
-      ORDER BY manager;`;
-    connection.query(query, (err, res) => {
-      if (err) throw err;
-      console.log(res);
-    });
-      //start() remove this and add a table constructor function
-  }
-  
+
 
   //For all of these functiuons, create a class constructor for function 
     function addEmployee() {
@@ -122,14 +93,41 @@ function viewAllEmployees() {
 
 
     }
-    function removeEmployee() {                    
+        //Might not use delete functions
+ 
+    function removeEmployee() {      
+        inquirer.prompt([
+            {   name: 'choice',
+                type: 'list',
+                message: 'Would you like to remove the employee by name or id?',
+                choices: [ 'Name', 'ID']
+                
+            },
+            {
+                name: 'first_name',
+                type: 'input',
+                message: 'What is the employee\'s full name?',
+                when: (answers) => answers.choice === 'Name'
+            },
+            {
+                name: 'id',
+                type: 'input',
+                message: 'What is the employee\'s id?',
+                when: (answers) => answers.choice === 'ID'
+            }  
+        ])
+    
+        .then((answers) => {
+
         const query = `
+        DELETE FROM employee WHERE id = ? or full_name = ?
         `;
         connection.query(query, (err, res) => {
             if (err) throw err;
           });
           start();
-    }
+    });
+};
     function updateEmployeeRole() {
         const query = `
         `;
@@ -138,14 +136,7 @@ function viewAllEmployees() {
           });
           start();
     }
-    function updateEmployeeManager() {
-        const query = `
-        `;
-        connection.query(query, (err, res) => {
-            if (err) throw err;
-          });
-          start();
-    }
+
     function viewAllRoles() {
         const query = `SELECT * FROM role
         `;
@@ -191,41 +182,50 @@ function viewAllEmployees() {
         });
 
     }
-    function removeRole() {
-        const query = `
-        `;
-        connection.query(query, (err, res) => {
-            if (err) throw err;
-          });
-          start();
-    }
+
+
+    //Might not use delete functions
+    // function removeRole() {
+    //     const query = `
+    //     `;
+    //     connection.query(query, (err, res) => {
+    //         if (err) throw err;
+    //       });
+    //       start();
+    // }
     function viewAllDepartments() {
-        const query = `SELECT * FROM department
+        const query = `SELECT * FROM department;
         `;
         connection.query(query, (err, res) => {
             if (err) throw err;
-            cTable.getTable(res);
-            console.log(res);
+            console.table(res);
+            start();
           });
           
     }
     function addDepartment() {
-        const query = `
+        inquirer.prompt([
+            {
+                name: 'title',
+                type: 'input',
+                message: 'What is the title of the new department?'
+            },
+        ])
+        .then((answers) => {
+        const {title} = answers;
+        const query = `INSERT INTO department (name) VALUES (?);
         `;
-        connection.query(query, (err, res) => {
+        connection.query(query, title, (err, res) => { 
             if (err) throw err;
+            console.log("Department created successfully!")
+                start();
           });
-          start();
+        });
     }
-    function removeDepartment() {
-        const query = `
-        `;
-        connection.query(query, (err, res) => {
-            if (err) throw err;
-          });
-          start();
-    }
-    
+   
+    //Might not use delete functions
+
+
 //BELOW are the CRUD functions which are called in the inquirer prompts
 
 function start() {
@@ -234,20 +234,16 @@ function start() {
         name: 'action',
         type: 'list',
         message: 'What would you like to do Today?',
+        //THEN I am presented with the following options: view all departments, view all roles, view all employees, add a department, add a role, add an employee, and update an employee role
         choices: [
-            'View All Employees',
-            'View All Employees By Department',
-            'View All Employees By Manager',
-            'Add Employee',
-            'Remove Employee',                  //not needed
-            'Update Employee Role',
-            'Update Employee Manager',          //not needed
-            'View All Roles',
-            'Add Role',
-            'Remove Role',                      //not needed
-            'View All Departments',
-            'Add Department',
-            'Remove Department',                //not needed
+            'View All Employees',               //needed+done ★★★
+            'Add Employee',                     //needed+done ★★★
+            'Remove Employee',                  //not needed  ★★★
+            'Update Employee Role',             //needed      ★
+            'View All Roles',                   //Needed+done ★★★
+            'Add Role',                         //Needed      ★★★
+            'View All Departments',             //Needed+done ★★★
+            'Add Department',                   //needed      ★              //not needed
             'Quit'
         ]
     })
@@ -255,12 +251,6 @@ function start() {
         switch (answer.action) {
             case 'View All Employees':
                 viewAllEmployees();
-                break;
-            case 'View All Employees By Department':
-                viewAllEmployeesByDepartment();
-                break;
-            case 'View All Employees By Manager':
-                viewAllEmployeesByManager();
                 break;
             case 'Add Employee':
                 addEmployee();
@@ -271,27 +261,20 @@ function start() {
             case 'Update Employee Role':
                 updateEmployeeRole();
                 break;
-            case 'Update Employee Manager':
-                updateEmployeeManager();
-                break;
             case 'View All Roles':
                 viewAllRoles();
                 break;
             case 'Add Role':
                 addRole();
                 break;
-            case 'Remove Role':
-                removeRole();
-                break;
+            
             case 'View All Departments':
                 viewAllDepartments();
                 break;
             case 'Add Department':
                 addDepartment();
                 break;
-            case 'Remove Department':
-                removeDepartment();
-                break;
+           
             case 'Quit':
                 connection.end();
                 break;
