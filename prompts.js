@@ -2,7 +2,6 @@ const inquirer = require("inquirer");
 const mysql = require("mysql2");
 const connection = require("./database.js");
 
-
 function start() {
   inquirer
     .prompt({
@@ -22,7 +21,7 @@ function start() {
         "Remove Employee",
         "Remove Department",
         "Remove Role",
-        "Quit"
+        "Quit",
       ],
     })
     .then((answer) => {
@@ -59,23 +58,43 @@ function start() {
           break;
 
         case "Remove Department":
-            removeDepartment();
+          removeDepartment();
           break;
 
         case "Remove Role":
-            removeRole();
+          removeRole();
           break;
 
         case "Quit":
           connection.end();
           break;
-      };
+      }
     });
 }
 
 //For all of these functions, create a class constructor for function
 function viewAllEmployees() {
   const query = `SELECT * FROM employee
+          `;
+  connection.query(query, (err, res) => {
+    if (err) throw err;
+    console.table(res);
+    start();
+  });
+}
+
+function viewAllRoles() {
+  const query = `SELECT * FROM role
+          `;
+  connection.query(query, (err, res) => {
+    if (err) throw err;
+    console.table(res);
+    start();
+  });
+}
+
+function viewAllDepartments() {
+  const query = `SELECT * FROM department;
           `;
   connection.query(query, (err, res) => {
     if (err) throw err;
@@ -129,63 +148,7 @@ function addEmployee() {
       );
     });
 }
-//Might not use delete functions
 
-function removeEmployee() {
-  inquirer
-    .prompt({
-      name: "id",
-      type: "input",
-      message: "What is the employee's id?",
-    })
-
-    .then((answers) => {
-      const employeeid = answers.id;
-      const query = `
-          DELETE FROM employee WHERE id = ?
-          `;
-      connection.query(query, [employeeid], (err, res) => {
-        if (err) throw err;
-        console.log("Employee deleted successfully!");
-        start();
-      });
-    });
-}
-function updateEmployeeRole() {
-  inquirer
-    .prompt([
-      {
-        name: "id",
-        type: "input",
-        message: "What is the employee's id?",
-      },
-      {
-        name: "role_id",
-        type: "input",
-        message: "What is the employee's new role id?",
-      },
-    ])
-    .then((answers) => {
-      const { id, role_id } = answers;
-      const query = `UPDATE employee SET role_id = ? WHERE ID = ?
-          `;
-      connection.query(query, [role_id, id], (err, res) => {
-        if (err) throw err;
-        console.log("Employee role updated successfully!");
-        start();
-      });
-    });
-}
-
-function viewAllRoles() {
-  const query = `SELECT * FROM role
-          `;
-  connection.query(query, (err, res) => {
-    if (err) throw err;
-    console.table(res);
-    start();
-  });
-}
 function addRole() {
   inquirer
     .prompt([
@@ -224,16 +187,6 @@ function addRole() {
     });
 }
 
-function viewAllDepartments() {
-  const query = `SELECT * FROM department;
-          `;
-  connection.query(query, (err, res) => {
-    if (err) throw err;
-    console.table(res);
-    start();
-  });
-}
-
 function addDepartment() {
   inquirer
     .prompt([
@@ -255,47 +208,92 @@ function addDepartment() {
     });
 }
 
+function updateEmployeeRole() {
+  inquirer
+    .prompt([
+      {
+        name: "id",
+        type: "input",
+        message: "What is the employee's id?",
+      },
+      {
+        name: "role_id",
+        type: "input",
+        message: "What is the employee's new role id?",
+      },
+    ])
+    .then((answers) => {
+      const { id, role_id } = answers;
+      const query = `UPDATE employee SET role_id = ? WHERE ID = ?
+          `;
+      connection.query(query, [role_id, id], (err, res) => {
+        if (err) throw err;
+        console.log("Employee role updated successfully!");
+        start();
+      });
+    });
+}
+function removeEmployee() {
+  inquirer
+    .prompt({
+      name: "id",
+      type: "input",
+      message: "What is the employee's id?",
+    })
+
+    .then((answers) => {
+      const employeeid = answers.id;
+      const query = `
+          DELETE FROM employee WHERE id = ?
+          `;
+      connection.query(query, [employeeid], (err, res) => {
+        if (err) throw err;
+        console.log("Employee deleted successfully!");
+        start();
+      });
+    });
+}
+
 function removeDepartment() {
   inquirer
-  .prompt({
-    name: "id",
-    type: "input",
-    message: "What is the departments's id?",
-  })
+    .prompt({
+      name: "id",
+      type: "input",
+      message: "What is the departments's id?",
+    })
 
-  .then((answers) => {
-    const employeeid = answers.id;
-    const query = `
+    .then((answers) => {
+      const employeeid = answers.id;
+      const query = `
         DELETE FROM department WHERE id = ?
         `;
-    connection.query(query, [employeeid], (err, res) => {
-      if (err) throw err;
-      console.log("Department removed successfully!");
-      start();
+      connection.query(query, [employeeid], (err, res) => {
+        if (err) throw err;
+        console.log("Department removed successfully!");
+        start();
+      });
     });
-  });
 }
 
 function removeRole() {
   inquirer
-  .prompt({
-    name: "id",
-    type: "input",
-    message: "What is the role's id?",
-  })
+    .prompt({
+      name: "id",
+      type: "input",
+      message: "What is the role's id?",
+    })
 
-  .then((answers) => {
-    const employeeid = answers.id;
-    const query = `
+    .then((answers) => {
+      const employeeid = answers.id;
+      const query = `
         DELETE FROM role WHERE id = ?
         `;
-    connection.query(query, [employeeid], (err, res) => {
-      if (err) throw err;
-      console.log("Role removed successfully!");
-      start();
+      connection.query(query, [employeeid], (err, res) => {
+        if (err) throw err;
+        console.log("Role removed successfully!");
+        start();
+      });
     });
-  });
 }
-
 
 module.exports = start;
